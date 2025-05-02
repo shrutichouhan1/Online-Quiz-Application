@@ -1,2 +1,2 @@
 # Online-Quiz-Application
-Made using Java(AWT & SWING)
+<b>Made using Java(AWT & SWING) and SQL<b>
