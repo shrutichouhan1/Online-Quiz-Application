@@ -1,5 +1,3 @@
-
-
 package quiz.application;
 import java.sql.*;
 

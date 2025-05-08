@@ -74,7 +74,7 @@ public class Score extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        new Score("User", 10);
+        new Score("User", 0);
     }
 }
 

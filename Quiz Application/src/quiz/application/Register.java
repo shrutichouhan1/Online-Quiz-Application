@@ -2,6 +2,8 @@ package quiz.application;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 
 public class Register extends JFrame implements ActionListener{
@@ -49,7 +51,7 @@ public class Register extends JFrame implements ActionListener{
         back.addActionListener(this);
         add(back);
 
-         setSize(600, 450);
+         setSize(800, 550);
         setLocation(500, 100);
         setVisible(true);
     }
@@ -83,6 +85,16 @@ public class Register extends JFrame implements ActionListener{
             new Login();
         }
     }
+     private String hashPassword(String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hash = md.digest(password.getBytes());
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            hexString.append(String.format("%02x", b));
+        }
+        return hexString.toString();
+    }
+     
     public static void main(String[] args) {
         new Register("Register");
     }
