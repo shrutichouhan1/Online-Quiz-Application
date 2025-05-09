@@ -67,19 +67,14 @@ public class Login extends JFrame implements ActionListener{
         if (ae.getSource() == loginBtn) {
             try {
                 Sql_Connectivity c = new Sql_Connectivity();
-//                String query = "Select * from users where username=? AND password=?";
                 String query = "Select * from users where username=?";
                 PreparedStatement pstmt = c.c.prepareStatement(query);
                 pstmt.setString(1, username);
-//                pstmt.setString(2, password);
                 ResultSet rs = pstmt.executeQuery();
                 
                 if (rs.next()) {
                    String storedHash = rs.getString("password");  // Retrieve the stored hashed password
                     String role = rs.getString("role");
-
-//                        JOptionPane.showMessageDialog(this, "Login successful, " + username);
-//                        dispose(); // Close the login window
 
                     if (PasswordUtil.checkPassword(password, storedHash)) {
                         JOptionPane.showMessageDialog(this, "Login successful, " + username);
@@ -91,8 +86,7 @@ public class Login extends JFrame implements ActionListener{
 //                        new Leaderboard();  // or new Quiz(username);
 //                    }
                     }else {
-                    new Leaderboard(); // or new Quiz(username);
-                    new Rules(username);  // Assuming you want to navigate to rules
+                            new Rules(username);  // Assuming you want to navigate to rules
                 }
                     } else {
                         JOptionPane.showMessageDialog(this, "Invalid username/password", "Error", JOptionPane.ERROR_MESSAGE);
@@ -100,12 +94,7 @@ public class Login extends JFrame implements ActionListener{
                         } else {
                     JOptionPane.showMessageDialog(this, "User not found", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-//                   if (!"admin".equalsIgnoreCase(role)) {
-//                        new Rules(username);aa
-//                    }
-               
-//                    JOptionPane.showMessageDialog(this, "Invalid user/password","Error",JOptionPane.ERROR_MESSAGE);
-//                    new Login();
+                
                 tfname.setText("");  // Clear username
                 tfpass.setText("");  // Clear password
                 }

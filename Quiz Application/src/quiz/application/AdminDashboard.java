@@ -15,7 +15,6 @@ public class AdminDashboard extends JFrame implements ActionListener {
 
     public AdminDashboard() {
         setTitle("Admin Dashboard");
-//        setLayout(new GridLayout(7, 2));
         setLayout(null);
 
         
@@ -128,34 +127,7 @@ public class AdminDashboard extends JFrame implements ActionListener {
                 break;
         }
     }
-
-//    private void addQuestion() {
-//        try {
-//            String question = questionField.getText();
-//            String option1 = option1Field.getText();
-//            String option2 = option2Field.getText();
-//            String option3 = option3Field.getText();
-//            String option4 = option4Field.getText();
-//            String correctAnswer = correctAnswerField.getText();
-//
-//            Sql_Connectivity connection = new Sql_Connectivity();
-//            String query = "INSERT INTO questions (question_text, option1, option2, option3, option4, correct_answer) VALUES (?, ?, ?, ?, ?, ?)";
-//            PreparedStatement pstmt = connection.c.prepareStatement(query);
-//            pstmt.setString(1, question);
-//            pstmt.setString(2, option1);
-//            pstmt.setString(3, option2);
-//            pstmt.setString(4, option3);
-//            pstmt.setString(5, option4);
-//            pstmt.setString(6, correctAnswer);
-//            pstmt.executeUpdate();
-//
-//            JOptionPane.showMessageDialog(this, "Question added successfully!");
-//        } catch (SQLException ex) {
-//            JOptionPane.showMessageDialog(this, "Error adding question: " + ex.getMessage());
-//        }
-//    }
-
-
+    
         private void addQuestion() {
         try {
             String question = questionField.getText();
@@ -263,18 +235,7 @@ public class AdminDashboard extends JFrame implements ActionListener {
             PreparedStatement pstmt = connection.c.prepareStatement(query);
             ResultSet rs = pstmt.executeQuery();
 
-            // Define table columns
-//            DefaultTableModel model = new DefaultTableModel();
-
             tableModel.setRowCount(0);  
-            
-//            model.addColumn("ID");
-//            model.addColumn("Question");
-//            model.addColumn("Option 1");
-//            model.addColumn("Option 2");
-//            model.addColumn("Option 3");
-//            model.addColumn("Option 4");
-//            model.addColumn("Correct Answer");
 
             // Add rows to the table
             while (rs.next()) {
@@ -290,12 +251,6 @@ public class AdminDashboard extends JFrame implements ActionListener {
                 });
             }
 
-            // Create JTable to display the questions
-//            table = new JTable(model);
-//            JScrollPane scrollPane = new JScrollPane(table);
-//            scrollPane.setBounds(45, 300, 600, 150);
-//            add(scrollPane);
-
             // Set the table model to the JTable
             table.setModel(tableModel);
 
@@ -306,14 +261,6 @@ public class AdminDashboard extends JFrame implements ActionListener {
             JOptionPane.showMessageDialog(this, "Error fetching questions: " + ex.getMessage());
         }
     }
-
-//     private void refreshTable() {
-//        // Clear the table model
-//        tableModel.setRowCount(0);
-//        // Reload the data from the database
-//        viewQuestions();
-//    }
-    
     
     private void logout() {
         JOptionPane.showMessageDialog(this, "Logging out...");
@@ -327,27 +274,4 @@ public class AdminDashboard extends JFrame implements ActionListener {
             }
         });
     }
-
 }
-
-
- 
-//    public static void main(String[] args) {
-//        SwingUtilities.invokeLater(() -> new AdminDashboard());
-//    }
-//}}
-
-    
-    
-
-
-    
-
-
-
-
-        
-//    }
-
-    
-

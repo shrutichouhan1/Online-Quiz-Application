@@ -35,6 +35,13 @@ public class Score extends JFrame implements ActionListener {
         submit.addActionListener(this);
         add(submit);
         
+        JButton leaderboardButton = new JButton("Leaderboard");
+        leaderboardButton.setBounds(380, 320, 120, 30);
+        leaderboardButton.setBackground(new Color(30, 144, 255));
+        leaderboardButton.setForeground(Color.WHITE);
+        leaderboardButton.addActionListener(this);
+        add(leaderboardButton);
+        
         insertScoreIntoDatabase(username, score);
         setVisible(true);
     }
@@ -47,6 +54,7 @@ public class Score extends JFrame implements ActionListener {
             pstmt.setString(1, username);
             ResultSet rs = pstmt.executeQuery();
             int userId =-1;
+            
             if (rs.next()) {
                 userId = rs.getInt("id");
             }
@@ -69,8 +77,13 @@ public class Score extends JFrame implements ActionListener {
         } 
     }
     public void actionPerformed(ActionEvent ae) {
-        setVisible(false);
-        new Login();
+        if (ae.getActionCommand().equals("Play Again")) {
+            setVisible(false);
+            new Login();
+        } else if (ae.getActionCommand().equals("Leaderboard")) {
+            new Leaderboard();
+            setVisible(false);
+        }
     }
 
     public static void main(String[] args) {

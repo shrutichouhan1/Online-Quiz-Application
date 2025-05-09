@@ -20,7 +20,7 @@ public class Leaderboard extends JFrame {
 
         loadLeaderboardData();
 
-        setSize(500, 300);
+        setSize(500, 220);
         setLocation(500, 200);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -33,7 +33,7 @@ public class Leaderboard extends JFrame {
 //            String query = "SELECT u.username, r.score FROM results r ORDER BY score DESC LIMIT 10";
                 String query = "SELECT u.username, r.score FROM results r " +
                            "JOIN users u ON r.user_id = u.id " +
-                           "ORDER BY r.score DESC LIMIT 10";
+                           "ORDER BY r.score DESC LIMIT 4";
             Statement stmt = connection.c.createStatement();
             ResultSet rs = stmt.executeQuery(query);
 
@@ -44,6 +44,7 @@ public class Leaderboard extends JFrame {
                 Object[] row = {rank++, username, score};
                 ((DefaultTableModel) leaderboardTable.getModel()).addRow(row);
             }
+            
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Error loading leaderboard: " + ex.getMessage());
         }
