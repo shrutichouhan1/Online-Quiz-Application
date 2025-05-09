@@ -44,11 +44,14 @@ public class Login extends JFrame implements ActionListener{
         add(tfpass);
         
         loginBtn = new Button("Login"); 
-        loginBtn.addActionListener(this); add(loginBtn);
+        loginBtn.addActionListener(this); 
+        add(loginBtn);
         loginBtn.setBounds(770,335,110,22);
         add(loginBtn);
+        
         registerBtn = new Button("Register"); 
-        registerBtn.addActionListener(this); add(registerBtn);
+        registerBtn.addActionListener(this); 
+        add(registerBtn);
         registerBtn.setBounds(905,335,110,22);
         add(registerBtn);
         
@@ -59,23 +62,30 @@ public class Login extends JFrame implements ActionListener{
     
     public void actionPerformed(ActionEvent ae) {
         String username = tfname.getText();
-            String password = new String(tfpass.getPassword());
+        String password = new String(tfpass.getPassword());
+        
         if (ae.getSource() == loginBtn) {
-            try{
+            try {
                 Sql_Connectivity c = new Sql_Connectivity();
-                String query = "Select * from users where username=? AND password=?";
+//                String query = "Select * from users where username=? AND password=?";
+                String query = "Select * from users where username=?";
                 PreparedStatement pstmt = c.c.prepareStatement(query);
                 pstmt.setString(1, username);
-                pstmt.setString(2, password);
+//                pstmt.setString(2, password);
                 ResultSet rs = pstmt.executeQuery();
+                
                 if (rs.next()) {
                    String storedHash = rs.getString("password");  // Retrieve the stored hashed password
                     String role = rs.getString("role");
 
+//                        JOptionPane.showMessageDialog(this, "Login successful, " + username);
+//                        dispose(); // Close the login window
+
+                    if (PasswordUtil.checkPassword(password, storedHash)) {
                         JOptionPane.showMessageDialog(this, "Login successful, " + username);
-                        dispose(); // Close the login window
+                        dispose(); 
                     
-                    if ("admin".equalsIgnoreCase(role)) {
+                        if ("admin".equalsIgnoreCase(role)) {
                         new AdminDashboard();
 //                    } else {
 //                        new Leaderboard();  // or new Quiz(username);
@@ -87,6 +97,9 @@ public class Login extends JFrame implements ActionListener{
                     } else {
                         JOptionPane.showMessageDialog(this, "Invalid username/password", "Error", JOptionPane.ERROR_MESSAGE);
                     }
+                        } else {
+                    JOptionPane.showMessageDialog(this, "User not found", "Error", JOptionPane.ERROR_MESSAGE);
+                }
 //                   if (!"admin".equalsIgnoreCase(role)) {
 //                        new Rules(username);aa
 //                    }

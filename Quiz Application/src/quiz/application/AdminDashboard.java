@@ -86,29 +86,25 @@ public class AdminDashboard extends JFrame implements ActionListener {
         logoutButton.setBounds(255,525,130,20);
         add(logoutButton);
 
+        tableModel = new DefaultTableModel();
+        tableModel.addColumn("ID");
+        tableModel.addColumn("Question");
+        tableModel.addColumn("Option 1");
+        tableModel.addColumn("Option 2");
+        tableModel.addColumn("Option 3");
+        tableModel.addColumn("Option 4");
+        tableModel.addColumn("Correct Answer");
+        
+        table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBounds(40, 300, 600, 200);
+        add(scrollPane);
 
         this.setSize(700, 600);
-        setLocation(400, 200);
+        setLocation(400, 100);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
     }
-
-//    @Override
-//    public void actionPerformed(ActionEvent e) {
-//        String command = e.getActionCommand();
-//
-//        if (command.equals("Add Question")) {
-//            addQuestion();
-//        } else if (command.equals("Update Question")) {
-//            updateQuestion();
-//        } else if (command.equals("Delete Question")) {
-//            deleteQuestion();
-//        } else if (command.equals("View Questions")) {
-//            viewQuestions();
-//        } else if (command.equals("Logout")) {
-//            logout();
-//        }
-//    }
 
 @Override
     public void actionPerformed(ActionEvent e) {
@@ -188,6 +184,7 @@ public class AdminDashboard extends JFrame implements ActionListener {
 
             pstmt.executeUpdate();
             JOptionPane.showMessageDialog(this, "Question added successfully!");
+            viewQuestions();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Error adding question: " + ex.getMessage());
         }
@@ -226,21 +223,19 @@ public class AdminDashboard extends JFrame implements ActionListener {
 
             pstmt.executeUpdate();
             JOptionPane.showMessageDialog(this, "Question updated successfully!");
-            refreshTable();
+            viewQuestions();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Error updating question: " + ex.getMessage());
         }
     }
 
     private void deleteQuestion() {
-        // Get the selected row from the JTable
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a question to delete.");
             return;
         }
 
-        // Get the question ID from the selected row
         int questionId = (int) table.getValueAt(selectedRow, 0);
 
         // Confirm deletion
@@ -254,7 +249,7 @@ public class AdminDashboard extends JFrame implements ActionListener {
                 pstmt.setInt(1, questionId);
                 pstmt.executeUpdate();
                 JOptionPane.showMessageDialog(this, "Question deleted successfully!");
-                refreshTable();
+                viewQuestions();
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this, "Error deleting question: " + ex.getMessage());
             }
@@ -269,18 +264,22 @@ public class AdminDashboard extends JFrame implements ActionListener {
             ResultSet rs = pstmt.executeQuery();
 
             // Define table columns
-            DefaultTableModel model = new DefaultTableModel();
-            model.addColumn("ID");
-            model.addColumn("Question");
-            model.addColumn("Option 1");
-            model.addColumn("Option 2");
-            model.addColumn("Option 3");
-            model.addColumn("Option 4");
-            model.addColumn("Correct Answer");
+//            DefaultTableModel model = new DefaultTableModel();
+
+            tableModel.setRowCount(0);  
+            
+//            model.addColumn("ID");
+//            model.addColumn("Question");
+//            model.addColumn("Option 1");
+//            model.addColumn("Option 2");
+//            model.addColumn("Option 3");
+//            model.addColumn("Option 4");
+//            model.addColumn("Correct Answer");
 
             // Add rows to the table
             while (rs.next()) {
-                model.addRow(new Object[] {
+//                model.addRow(new Object[] {
+                    tableModel.addRow(new Object[] {
                     rs.getInt("id"), 
                     rs.getString("question"),
                     rs.getString("option_a"),
@@ -292,10 +291,13 @@ public class AdminDashboard extends JFrame implements ActionListener {
             }
 
             // Create JTable to display the questions
-            table = new JTable(model);
-            JScrollPane scrollPane = new JScrollPane(table);
-            scrollPane.setBounds(45, 300, 600, 150);
-            add(scrollPane);
+//            table = new JTable(model);
+//            JScrollPane scrollPane = new JScrollPane(table);
+//            scrollPane.setBounds(45, 300, 600, 150);
+//            add(scrollPane);
+
+            // Set the table model to the JTable
+            table.setModel(tableModel);
 
             // Refresh the frame
             revalidate();
@@ -305,12 +307,14 @@ public class AdminDashboard extends JFrame implements ActionListener {
         }
     }
 
-     private void refreshTable() {
-        // Clear the table model
-        tableModel.setRowCount(0);
-        // Reload the data from the database
-        viewQuestions();
-    }
+//     private void refreshTable() {
+//        // Clear the table model
+//        tableModel.setRowCount(0);
+//        // Reload the data from the database
+//        viewQuestions();
+//    }
+    
+    
     private void logout() {
         JOptionPane.showMessageDialog(this, "Logging out...");
         this.dispose();
