@@ -85,7 +85,6 @@ public class Register extends JFrame implements ActionListener{
         if (ae.getSource() == register) {
             String username = tfuname.getText();
             String password = new String(tfpasss.getPassword());
-//            String password1 = new String(tfpass1.getPassword());
 
             if (username.isEmpty() || password.isEmpty() ) {
                 JOptionPane.showMessageDialog(this, "Please enter all fields.");
@@ -98,14 +97,12 @@ public class Register extends JFrame implements ActionListener{
             }
 
             try {
-                // Hash the password using BCrypt
                 String hashedPassword = PasswordUtil.hashPassword(password);
                 
                 Sql_Connectivity c = new Sql_Connectivity();
                 String query = "INSERT INTO users (username, password) VALUES (?, ?)";
                 PreparedStatement pstmt = c.c.prepareStatement(query);
                 pstmt.setString(1, username);
-//                pstmt.setString(2, password);
                 pstmt.setString(2, hashedPassword);
                 pstmt.executeUpdate();
                 

@@ -38,7 +38,7 @@ public class AdminDashboard extends JFrame implements ActionListener {
         option2Field = new JTextField();
         option2Field.setBounds(490,70,160,20);
         add(option2Field);
-////
+
         JLabel o3 = new JLabel("Option 3:");
         o3.setBounds(40,115,70,25);
         add(o3);

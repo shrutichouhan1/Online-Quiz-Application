@@ -1,50 +1,30 @@
 package quiz.application;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
+import java.util.ArrayList;
 
 public class Quiz extends JFrame implements ActionListener {
 
-    String questions[][] = new String[10][5];
-    String answers[][] = new String[10][2];
-    String useranswers[][] = new String[10][1];
+    ArrayList<String[]> questions = new ArrayList<>();
+    ArrayList<String> answers = new ArrayList<>();
+    String[] useranswers;
 
-    JLabel qno, question;
+    JLabel qno, question, timeLabel;
     JRadioButton opt1, opt2, opt3, opt4;
     ButtonGroup groupoptions;
     JButton next, submit, previous;
 
-    public static int timer = 15;
-    public static int ans_given = 0;
-    public static int count = 0;
-    public static int score = 0;
+    Timer quizTimer;
+    int totalTime;
+    int timeLeft;
+    int count = 0;
+    int score = 0;
     String name;
 
-    public void fetchQuestionsFromDatabase() {
-        try {
-            Sql_Connectivity c = new Sql_Connectivity();
-            String query = "SELECT * FROM questions LIMIT 10";
-            PreparedStatement pstmt = c.c.prepareStatement(query);
-            ResultSet rs = pstmt.executeQuery();
-
-            int i = 0;
-            while (rs.next() && i < 10) {
-                questions[i][0] = rs.getString("question");
-                questions[i][1] = rs.getString("option_a");
-                questions[i][2] = rs.getString("option_b");
-                questions[i][3] = rs.getString("option_c");
-                questions[i][4] = rs.getString("option_d");
-                answers[i][1] = rs.getString("correct_answer");
-                System.out.println("Loaded question " + (i + 1) + ": " + questions[i][0]);
-                i++;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-Quiz(String name) {
+    Quiz(String name) {
         this.name = name;
         setBounds(50, 0, 1440, 850);
         getContentPane().setBackground(Color.WHITE);
@@ -64,7 +44,7 @@ Quiz(String name) {
         question.setBounds(150, 450, 900, 30);
         question.setFont(new Font("Tahoma", Font.PLAIN, 24));
         add(question);
-    
+
         opt1 = new JRadioButton();
         opt1.setBounds(170, 520, 700, 30);
         opt1.setBackground(Color.WHITE);
@@ -96,169 +76,178 @@ Quiz(String name) {
         groupoptions.add(opt4);
 
         next = new JButton("Next");
-        next.setBounds(1100, 550, 200, 40);
+        next.setBounds(1100, 530, 200, 40);
         next.setFont(new Font("Tahoma", Font.PLAIN, 22));
         next.setBackground(new Color(30, 144, 255));
         next.setForeground(Color.WHITE);
         next.addActionListener(this);
         add(next);
 
-        submit = new JButton("Submit");
-        submit.setBounds(1100, 690, 200, 40);
-        submit.setFont(new Font("Tahoma", Font.PLAIN, 22));
-        submit.setBackground(new Color(30, 144, 255));
-        submit.setForeground(Color.WHITE);
-        submit.addActionListener(this);
-        submit.setEnabled(false);
-        add(submit);
-        
         previous = new JButton("Previous");
-        previous.setBounds(1100, 620, 200, 40);
+        previous.setBounds(1100, 600, 200, 40);
         previous.setFont(new Font("Tahoma", Font.PLAIN, 22));
         previous.setBackground(new Color(30, 144, 255));
         previous.setForeground(Color.WHITE);
         previous.addActionListener(this);
         add(previous);
 
+        submit = new JButton("Submit");
+        submit.setBounds(1100, 670, 200, 40);
+        submit.setFont(new Font("Tahoma", Font.PLAIN, 22));
+        submit.setBackground(new Color(30, 144, 255));
+        submit.setForeground(Color.WHITE);
+        submit.setEnabled(false);
+        submit.addActionListener(this);
+        add(submit);
+
+        timeLabel = new JLabel("Time Left: ");
+        timeLabel.setBounds(1100, 450, 300, 40);
+        timeLabel.setFont(new Font("Tahoma", Font.PLAIN, 22));
+        timeLabel.setForeground(Color.RED);
+        add(timeLabel);
+
         fetchQuestionsFromDatabase();
+        useranswers = new String[questions.size()];
+        totalTime = questions.size() * 60;
+        timeLeft = totalTime;
+
         start(count);
+        startTimer();
+
         setVisible(true);
+    }
+
+    void fetchQuestionsFromDatabase() {
+        try {
+            Sql_Connectivity c = new Sql_Connectivity();
+            String query = "SELECT * FROM questions";
+            PreparedStatement pstmt = c.c.prepareStatement(query);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                questions.add(new String[]{
+                        rs.getString("question"),
+                        rs.getString("option_a"),
+                        rs.getString("option_b"),
+                        rs.getString("option_c"),
+                        rs.getString("option_d")
+                });
+                answers.add(rs.getString("correct_answer"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void start(int count) {
+        qno.setText((count + 1) + ".");
+        question.setText(questions.get(count)[0]);
+
+        opt1.setText(questions.get(count)[1]);
+        opt1.setActionCommand(questions.get(count)[1]);
+
+        opt2.setText(questions.get(count)[2]);
+        opt2.setActionCommand(questions.get(count)[2]);
+
+        opt3.setText(questions.get(count)[3]);
+        opt3.setActionCommand(questions.get(count)[3]);
+
+        opt4.setText(questions.get(count)[4]);
+        opt4.setActionCommand(questions.get(count)[4]);
+
+        groupoptions.clearSelection();
+
+        if (useranswers[count] != null) {
+            if (useranswers[count].equals(opt1.getActionCommand())) opt1.setSelected(true);
+            else if (useranswers[count].equals(opt2.getActionCommand())) opt2.setSelected(true);
+            else if (useranswers[count].equals(opt3.getActionCommand())) opt3.setSelected(true);
+            else if (useranswers[count].equals(opt4.getActionCommand())) opt4.setSelected(true);
+        }
+    }
+
+    void startTimer() {
+        quizTimer = new Timer(1000, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                timeLeft--;
+                int minutes = timeLeft / 60;
+                int seconds = timeLeft % 60;
+                timeLabel.setText(String.format("Time Left: %02d:%02d", minutes, seconds));
+
+                if (timeLeft <= 0) {
+                    quizTimer.stop();
+                    autoSubmit();
+                }
+            }
+        });
+        quizTimer.start();
     }
 
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() == next) {
-            repaint();
-            ans_given = 1;
-
-            if (groupoptions.getSelection() == null) {
-                useranswers[count][0] = "";
-            } else {
-                useranswers[count][0] = groupoptions.getSelection().getActionCommand();
-            }
-
-            if (count == 8) {
+            saveAnswer();
+            if (count == questions.size() - 2) {
                 next.setEnabled(false);
                 submit.setEnabled(true);
             }
-
-            count++;
-            start(count);
-
-        } else if (ae.getSource() == submit) {
-            ans_given = 1;
-            if (groupoptions.getSelection() == null) {
-                useranswers[count][0] = "";
-            } else {
-                useranswers[count][0] = groupoptions.getSelection().getActionCommand();
+            if (count < questions.size() - 1) {
+                count++;
+                start(count);
             }
-
-            for (int i = 0; i < useranswers.length; i++) {
-                if (useranswers[i][0] != null && useranswers[i][0].equals(answers[i][1])) {
-                    score += 10;
-                }
-            }
-
-            setVisible(false);
-            new Score(name, score);
-        }else if (ae.getSource() == previous) {
-            ans_given = 1;
-            if (groupoptions.getSelection() == null) {
-                useranswers[count][0] = "";
-            } else {
-                useranswers[count][0] = groupoptions.getSelection().getActionCommand();
-            }
-
+        } else if (ae.getSource() == previous) {
+            saveAnswer();
             if (count > 0) {
                 count--;
                 start(count);
                 next.setEnabled(true);
                 submit.setEnabled(false);
             }
+        } else if (ae.getSource() == submit) {
+            saveAnswer();
+            quizTimer.stop();
+            autoSubmit();
         }
     }
 
-    public void paint(Graphics g) {
-        super.paint(g);
-
-        String time = "Time left - " + timer + " seconds";
-        g.setColor(Color.RED);
-        g.setFont(new Font("Tahoma", Font.BOLD, 25));
-
-        if (timer > 0) {
-            g.drawString(time, 1100, 500);
+    void saveAnswer() {
+        if (groupoptions.getSelection() != null) {
+            useranswers[count] = groupoptions.getSelection().getActionCommand();
         } else {
-            g.drawString("Time's up!", 1100, 500);
-        }
-
-        timer--;
-
-        try {
-            Thread.sleep(1000);
-            repaint();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (ans_given == 1) {
-            ans_given = 0;
-            timer = 15;
-        } else if (timer < 0) {
-            timer = 15;
-
-            if (count == 8) {
-                next.setEnabled(false);
-                submit.setEnabled(true);
-            }
-
-            if (count == 9) {
-                if (groupoptions.getSelection() == null) {
-                    useranswers[count][0] = "";
-                } else {
-                    useranswers[count][0] = groupoptions.getSelection().getActionCommand();
-                }
-
-                for (int i = 0; i < useranswers.length; i++) {
-                    if (useranswers[i][0] != null && useranswers[i][0].equals(answers[i][1])) {
-                        score += 10;
-                    }
-                }
-
-                setVisible(false);
-                new Score(name, score);
-            } else {
-                if (groupoptions.getSelection() == null) {
-                    useranswers[count][0] = "";
-                } else {
-                    useranswers[count][0] = groupoptions.getSelection().getActionCommand();
-                }
-
-                count++;
-                start(count);
-            }
+            useranswers[count] = "";
         }
     }
 
-    public void start(int count) {
-        if (questions[count][0] == null) {
-            question.setText("No question loaded.");
-            return;
+    void autoSubmit() {
+        StringBuilder feedback = new StringBuilder("<html><body><h2>Quiz Feedback</h2>");
+
+        for (int i = 0; i < questions.size(); i++) {
+            String userAns = useranswers[i] == null ? "" : useranswers[i];
+            String correctAns = answers.get(i);
+
+            feedback.append("<p><b>Q").append(i + 1).append(":</b> ").append(questions.get(i)[0]).append("<br>");
+            feedback.append("Your Answer: ").append(userAns.isEmpty() ? "Not Answered" : userAns).append("<br>");
+            feedback.append("Correct Answer: ").append(correctAns).append("<br>");
+
+            if (userAns.equals(correctAns)) {
+                feedback.append("<span style='color:green;'>Correct</span>");
+                score += 10;
+            } else {
+                feedback.append("<span style='color:red;'>Incorrect</span>");
+            }
+            feedback.append("</p><hr>");
         }
 
-        qno.setText("" + (count + 1) + ". ");
-        question.setText(questions[count][0]);
-        opt1.setText(questions[count][1]);
-        opt1.setActionCommand(questions[count][1]);
+        feedback.append("<h3>Your Score: ").append(score).append("</h3>");
+        feedback.append("</body></html>");
 
-        opt2.setText(questions[count][2]);
-        opt2.setActionCommand(questions[count][2]);
+        JLabel feedbackLabel = new JLabel(feedback.toString());
+        JScrollPane scrollPane = new JScrollPane(feedbackLabel);
+        scrollPane.setPreferredSize(new Dimension(600, 400));
 
-        opt3.setText(questions[count][3]);
-        opt3.setActionCommand(questions[count][3]);
+        JOptionPane.showMessageDialog(this, scrollPane, "Quiz Result", JOptionPane.INFORMATION_MESSAGE);
 
-        opt4.setText(questions[count][4]);
-        opt4.setActionCommand(questions[count][4]);
-
-        groupoptions.clearSelection();
+        setVisible(false);
+        new Score(name, score);
     }
 
     public static void main(String[] args) {

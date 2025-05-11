@@ -38,7 +38,6 @@ public class Login extends JFrame implements ActionListener{
         pass.setBounds(730,250,300,30);
         add(pass);
         tfpass = new JPasswordField();
-//        tfpass.setFont(new Font("Times New Roman",Font.BOLD,25));
         tfpass.setBounds(730,275,300,25);
         tfpass.setEchoChar('*'); 
         add(tfpass);
@@ -73,7 +72,7 @@ public class Login extends JFrame implements ActionListener{
                 ResultSet rs = pstmt.executeQuery();
                 
                 if (rs.next()) {
-                   String storedHash = rs.getString("password");  // Retrieve the stored hashed password
+                   String storedHash = rs.getString("password");    
                     String role = rs.getString("role");
 
                     if (PasswordUtil.checkPassword(password, storedHash)) {
@@ -82,9 +81,6 @@ public class Login extends JFrame implements ActionListener{
                     
                         if ("admin".equalsIgnoreCase(role)) {
                         new AdminDashboard();
-//                    } else {
-//                        new Leaderboard();  // or new Quiz(username);
-//                    }
                     }else {
                             new Rules(username);  // Assuming you want to navigate to rules
                 }

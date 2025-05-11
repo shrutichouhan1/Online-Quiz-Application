@@ -4,8 +4,8 @@ import java.sql.*;
 public class Sql_Connectivity {
     
     public Statement s;
-    public Connection c; // step 2 create connection
-    public Sql_Connectivity(){  //step 1 create connectivity
+    public Connection c; 
+    public Sql_Connectivity(){  
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             c = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/Quiz_application","root","shruti");

@@ -9,7 +9,7 @@ public class AddQuestionForm extends JFrame implements ActionListener {
     
     JTextField questionTextField, option1Field, option2Field, option3Field, option4Field, correctAnswerField;
     JButton submitBtn;
-    int quizId;  // The quiz to which the question will be added
+    int quizId; 
 
     AddQuestionForm(int quizId) {
         this.quizId = quizId;
